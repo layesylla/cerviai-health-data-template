@@ -9,6 +9,9 @@ export interface User {
   name: string
   role: UserRole
   institution?: string
+  structureId?: string
+  telephone?: string
+  region?: string
 }
 
 interface RegisterData {
@@ -32,6 +35,8 @@ const MOCK_USERS: Record<string, { password: string; user: User }> = {
       name: "Aïssatou Diop",
       role: "agent",
       institution: "Centre de Santé de Pikine",
+      structureId: "1",
+      telephone: "+221 77 123 45 67",
     },
   },
   "medecin@cerviai.com": {
@@ -42,6 +47,8 @@ const MOCK_USERS: Record<string, { password: string; user: User }> = {
       name: "Dr. Amadou Diallo",
       role: "medecin",
       institution: "Hôpital Principal de Dakar",
+      structureId: "2",
+      telephone: "+221 77 234 56 78",
     },
   },
   "chercheur@cerviai.com": {
@@ -101,6 +108,18 @@ function getAllUsers(): Record<string, { password: string; user: User }> {
   return { ...MOCK_USERS, ...getRegisteredUsers() }
 }
 
+export function getAllRegisteredUsers(): User[] {
+  const allUsers = getAllUsers()
+  return Object.values(allUsers).map((u) => u.user)
+}
+
+export function getAgentsByStructure(structureId: string): User[] {
+  const allUsers = getAllUsers()
+  return Object.values(allUsers)
+    .map((u) => u.user)
+    .filter((u) => u.role === "agent" && u.structureId === structureId)
+}
+
 export async function login(email: string, password: string): Promise<User> {
   // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 500))
@@ -129,13 +148,23 @@ export async function register(data: RegisterData): Promise<User> {
     throw new Error("Un compte avec cet email existe déjà")
   }
 
-  // Create new user
   const newUser: User = {
-    id: String(Date.now()), // Use timestamp for unique ID
+    id: String(Date.now()),
     email: data.email,
     name: data.name,
     role: data.role,
     institution: data.institution,
+    ...(data.role === "agent" &&
+      data.additionalData?.structureId && {
+        structureId: data.additionalData.structureId,
+      }),
+    ...(data.role === "agent" &&
+      data.additionalData?.region && {
+        region: data.additionalData.region,
+      }),
+    ...(data.additionalData?.telephone && {
+      telephone: data.additionalData.telephone,
+    }),
   }
 
   const registeredUsers = getRegisteredUsers()
@@ -146,7 +175,7 @@ export async function register(data: RegisterData): Promise<User> {
   saveRegisteredUsers(registeredUsers)
 
   console.log("[v0] New user registered:", newUser)
-  console.log("[v0] Additional data:", data.additionalData)
+  console.log("[v0] All registered users:", getAllRegisteredUsers())
 
   return newUser
 }
@@ -183,4 +212,24 @@ export function hasRole(role: UserRole | UserRole[]): boolean {
   }
 
   return user.role === role
+}
+
+export function canViewSensitiveData(role: UserRole): boolean {
+  return ["admin", "medecin", "agent"].includes(role)
+}
+
+export function canViewAlerts(role: UserRole): boolean {
+  return ["admin", "medecin"].includes(role)
+}
+
+export function canManageUsers(role: UserRole): boolean {
+  return role === "admin"
+}
+
+export function canManageStructures(role: UserRole): boolean {
+  return role === "admin"
+}
+
+export function canManageCampaigns(role: UserRole): boolean {
+  return role === "admin"
 }

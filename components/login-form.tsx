@@ -33,7 +33,6 @@ export function LoginForm() {
       } else if (user.role === "admin") {
         router.push("/dashboard")
       } else {
-        // All other roles (medecin, chercheur, agent) go to home
         router.push("/home")
       }
     } catch (err) {

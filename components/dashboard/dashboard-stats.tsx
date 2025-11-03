@@ -2,29 +2,38 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, AlertTriangle, Database, Users } from "lucide-react"
+import { usePatients } from "@/lib/patients-context"
+import { useMemo } from "react"
 
 export function DashboardStats() {
-  // Mock data - replace with real API calls to your Spring Boot backend
-  const stats = {
-    totalPatients: 1247,
-    totalRecords: 3891,
-    activeStudies: 12,
-    alerts: 5,
-  }
+  const { patients } = usePatients()
+
+  const stats = useMemo(() => {
+    const totalPatients = patients.length
+    const highRiskPatients = patients.filter((p) => p.risque === "Élevé").length
+    const positiveTests = patients.filter((p) => p.statutHPV === "Positif").length
+
+    return {
+      totalPatients,
+      totalRecords: patients.length,
+      activeStudies: 12, // Keep mock for now
+      alerts: highRiskPatients, // Use real high-risk patient count
+    }
+  }, [patients])
 
   const statCards = [
     {
       title: "Patients enregistrés",
       value: stats.totalPatients.toLocaleString(),
       icon: Users,
-      description: "+12% ce mois",
+      description: `${stats.totalPatients} au total`,
       color: "text-primary",
     },
     {
       title: "Données collectées",
       value: stats.totalRecords.toLocaleString(),
       icon: Database,
-      description: "+234 cette semaine",
+      description: "Dépistages enregistrés",
       color: "text-secondary",
     },
     {
@@ -38,7 +47,7 @@ export function DashboardStats() {
       title: "Alertes",
       value: stats.alerts,
       icon: AlertTriangle,
-      description: "Nécessitent attention",
+      description: "Patientes à haut risque",
       color: "text-destructive",
     },
   ]

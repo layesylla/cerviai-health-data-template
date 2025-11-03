@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { MedecinForm } from "@/components/forms/medecin-form"
 import { ChercheurForm } from "@/components/forms/chercheur-form"
 import { LaborantinForm } from "@/components/forms/laborantin-form"
-import { FileText, FlaskConical, Stethoscope } from "lucide-react"
+import { FileText, FlaskConical, Stethoscope, UserCheck } from "lucide-react"
 
 export function DataCollectionForm() {
   const user = getCurrentUser()
@@ -11,18 +11,21 @@ export function DataCollectionForm() {
   if (!user) return null
 
   const roleIcons = {
+    agent: UserCheck,
     medecin: Stethoscope,
     chercheur: FileText,
     laborantin: FlaskConical,
   }
 
   const roleTitles = {
+    agent: "Collecte de données de dépistage",
     medecin: "Collecte de données cliniques",
     chercheur: "Collecte de données de recherche",
     laborantin: "Collecte de données de laboratoire",
   }
 
   const roleDescriptions = {
+    agent: "Enregistrez les données de dépistage HPV des patientes",
     medecin: "Enregistrez les données des patients et les observations cliniques",
     chercheur: "Documentez vos études et collectez des données épidémiologiques",
     laborantin: "Saisissez les résultats d'analyses et tests de laboratoire",
@@ -40,7 +43,7 @@ export function DataCollectionForm() {
         <p className="text-muted-foreground">{roleDescriptions[user.role as keyof typeof roleDescriptions]}</p>
       </div>
 
-      {user.role === "medecin" && <MedecinForm />}
+      {(user.role === "agent" || user.role === "medecin") && <MedecinForm />}
       {user.role === "chercheur" && <ChercheurForm />}
       {user.role === "laborantin" && <LaborantinForm />}
     </div>

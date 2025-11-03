@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { usePatients } from "@/lib/patients-context"
+import { calculateRiskScore } from "@/lib/risk-calculation"
 import {
   AlertCircle,
   AlertTriangle,
@@ -26,45 +27,27 @@ export function AIAnalysisPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [riskFilter, setRiskFilter] = useState<string>("all")
 
-  // Calculate AI risk score based on patient data
-  const calculateRiskScore = (patient: any) => {
-    let score = 0
+  const patientsWithRisk = patients.map((patient) => {
+    const riskResult = calculateRiskScore({
+      statutHPV: patient.statutHPV,
+      age: Number.parseInt(patient.age),
+      symptomes: patient.symptomes,
+      antecedents: patient.antecedentsGyneco,
+      typeHPV: patient.typeHPV,
+      vaccination: patient.vaccination,
+      nombreGrossesses: Number.parseInt(patient.nombreGrossesses) || 0,
+    })
 
-    // HPV status
-    if (patient.statutHPV === "positif") score += 40
-    else if (patient.statutHPV === "negatif") score += 0
-    else score += 20
-
-    // Age factor
-    const age = patient.age || 30
-    if (age > 50) score += 20
-    else if (age > 40) score += 15
-    else if (age > 30) score += 10
-    else score += 5
-
-    // Symptoms
-    if (patient.symptomes?.includes("saignements")) score += 15
-    if (patient.symptomes?.includes("douleurs")) score += 10
-    if (patient.symptomes?.includes("pertes")) score += 10
-
-    // Medical history
-    if (patient.antecedents?.includes("cancer")) score += 20
-    if (patient.antecedents?.includes("ist")) score += 15
-
-    return Math.min(score, 100)
-  }
-
-  const getRiskLevel = (score: number) => {
-    if (score < 30) return { level: "Faible", color: "success", icon: CheckCircle }
-    if (score < 60) return { level: "Modéré", color: "warning", icon: AlertTriangle }
-    return { level: "Élevé", color: "danger", icon: AlertCircle }
-  }
-
-  const patientsWithRisk = patients.map((patient) => ({
-    ...patient,
-    riskScore: calculateRiskScore(patient),
-    risk: getRiskLevel(calculateRiskScore(patient)),
-  }))
+    return {
+      ...patient,
+      riskScore: riskResult.score,
+      risk: {
+        level: riskResult.level,
+        color: riskResult.color,
+        icon: riskResult.level === "Faible" ? CheckCircle : riskResult.level === "Modéré" ? AlertTriangle : AlertCircle,
+      },
+    }
+  })
 
   const filteredPatients = patientsWithRisk.filter((patient) => {
     const matchesSearch =

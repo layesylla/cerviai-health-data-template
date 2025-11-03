@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus, Eye, Calculator } from "lucide-react"
+import { Search, Plus, Eye, Calculator, Download } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -19,24 +19,69 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { usePatients } from "@/lib/patients-context"
 import { useRouter } from "next/navigation"
+import { getCurrentUser } from "@/lib/auth"
+import { anonymizePatientList, canViewPatientDetails } from "@/lib/data-anonymization"
 
 export function PatientsList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterRegion, setFilterRegion] = useState("all")
   const [filterStatut, setFilterStatut] = useState("all")
+  const [filterRisque, setFilterRisque] = useState("all")
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
   const { patients } = usePatients()
   const router = useRouter()
+  const currentUser = getCurrentUser()
 
-  const filteredPatients = patients.filter((patient) => {
+  const displayPatients = currentUser ? anonymizePatientList(patients, currentUser.role) : patients
+
+  const filteredPatients = displayPatients.filter((patient) => {
     const matchesSearch =
       patient.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.patientId.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesRegion = filterRegion === "all" || patient.region === filterRegion
     const matchesStatut = filterStatut === "all" || patient.statutHPV === filterStatut
-    return matchesSearch && matchesRegion && matchesStatut
+    const matchesRisque = filterRisque === "all" || patient.risque === filterRisque
+    return matchesSearch && matchesRegion && matchesStatut && matchesRisque
   })
+
+  const canViewDetails = currentUser ? canViewPatientDetails(currentUser.role) : false
+
+  const exportToCSV = () => {
+    const headers = [
+      "ID",
+      "Nom",
+      "Prénom",
+      "Âge",
+      "Région",
+      "Statut HPV",
+      "Type HPV",
+      "Résultat",
+      "Risque",
+      "Score de Risque",
+      "Date",
+    ]
+    const csvData = filteredPatients.map((p) => [
+      p.patientId,
+      p.nom,
+      p.prenom,
+      p.age,
+      p.region,
+      p.statutHPV,
+      p.typeHPV || "-",
+      p.resultatDepistage,
+      p.risque || "Faible",
+      p.riskScore || "-",
+      new Date(p.dateDepistage).toLocaleDateString("fr-FR"),
+    ])
+
+    const csvContent = [headers, ...csvData].map((row) => row.join(",")).join("\n")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(blob)
+    link.download = `patientes_${new Date().toISOString().split("T")[0]}.csv`
+    link.click()
+  }
 
   const getRisqueBadge = (risque: string) => {
     switch (risque) {
@@ -66,10 +111,16 @@ export function PatientsList() {
           <h1 className="text-3xl font-bold text-foreground">Gestion des patientes</h1>
           <p className="text-muted-foreground mt-1">Liste des patientes dépistées</p>
         </div>
-        <Button onClick={() => router.push("/collect")}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nouvelle patiente
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="mr-2 h-4 w-4" />
+            Exporter CSV
+          </Button>
+          <Button onClick={() => router.push("/collect")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nouvelle patiente
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -78,7 +129,7 @@ export function PatientsList() {
           <CardDescription>Filtrer les patientes par critères</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>Rechercher</Label>
               <div className="relative">
@@ -121,6 +172,21 @@ export function PatientsList() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label>Niveau de risque</Label>
+              <Select value={filterRisque} onValueChange={setFilterRisque}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tous les niveaux" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les niveaux</SelectItem>
+                  <SelectItem value="Élevé">Élevé</SelectItem>
+                  <SelectItem value="Moyen">Moyen</SelectItem>
+                  <SelectItem value="Faible">Faible</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -134,7 +200,7 @@ export function PatientsList() {
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
-                <TableHead>Nom complet</TableHead>
+                {canViewDetails && <TableHead>Nom complet</TableHead>}
                 <TableHead>Âge</TableHead>
                 <TableHead>Région</TableHead>
                 <TableHead>Statut HPV</TableHead>
@@ -148,15 +214,24 @@ export function PatientsList() {
               {filteredPatients.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-mono text-sm">{patient.patientId}</TableCell>
-                  <TableCell className="font-medium">
-                    {patient.prenom} {patient.nom}
-                  </TableCell>
+                  {canViewDetails && (
+                    <TableCell className="font-medium">
+                      {patient.prenom} {patient.nom}
+                    </TableCell>
+                  )}
                   <TableCell>{patient.age} ans</TableCell>
                   <TableCell>{patient.region}</TableCell>
                   <TableCell>{getStatutBadge(patient.statutHPV)}</TableCell>
                   <TableCell>{patient.typeHPV || "-"}</TableCell>
                   <TableCell>{patient.resultatDepistage}</TableCell>
-                  <TableCell>{getRisqueBadge(patient.risque || "Faible")}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getRisqueBadge(patient.risque || "Faible")}
+                      {patient.riskScore !== undefined && (
+                        <span className="text-xs text-muted-foreground">({patient.riskScore}%)</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Dialog>
@@ -209,14 +284,23 @@ export function PatientsList() {
                                 </div>
                                 <div className="col-span-2">
                                   <p className="text-sm text-muted-foreground">Niveau de risque</p>
-                                  <div className="mt-1">{getRisqueBadge(selectedPatient.risque || "Faible")}</div>
+                                  <div className="mt-1 flex items-center gap-2">
+                                    {getRisqueBadge(selectedPatient.risque || "Faible")}
+                                    {selectedPatient.riskScore !== undefined && (
+                                      <span className="text-sm font-semibold">Score: {selectedPatient.riskScore}%</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           )}
                         </DialogContent>
                       </Dialog>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/scoring?patientId=${patient.patientId}`)}
+                      >
                         <Calculator className="h-4 w-4" />
                       </Button>
                     </div>

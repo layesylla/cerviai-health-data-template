@@ -159,54 +159,53 @@ export function WelcomeDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-blue-600 to-secondary p-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-secondary p-6 md:p-8 text-white shadow-xl">
         <div className="relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg">
-              <Heart className="h-10 w-10 text-white animate-pulse" />
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm shadow-lg">
+              <Heart className="h-8 w-8 text-white animate-pulse" />
             </div>
             <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 text-balance">Bienvenue sur CERVIAI</h1>
-              <p className="text-xl text-white/95 text-balance">
+              <h1 className="text-3xl md:text-4xl font-bold mb-1 text-balance">Bienvenue sur CERVIAI</h1>
+              <p className="text-lg text-white/95 text-balance">
                 Plateforme intelligente de dépistage du cancer du col de l'utérus au Sénégal
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 mt-8">
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-5 py-3 border border-white/20">
-              <div className="h-3 w-3 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50" />
-              <span className="text-sm font-medium text-white">Système opérationnel</span>
+          <div className="flex flex-wrap items-center gap-3 mt-4">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50" />
+              <span className="text-xs font-medium text-white">Système opérationnel</span>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm">
-              <Shield className="h-4 w-4 mr-2" />
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-3 py-1 text-xs">
+              <Shield className="h-3 w-3 mr-1" />
               {roleLabels[user.role]}
             </Badge>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm">
-              <Sparkles className="h-4 w-4 mr-2" />
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-3 py-1 text-xs">
+              <Sparkles className="h-3 w-3 mr-1" />
               {user.name}
             </Badge>
           </div>
 
-          <div className="mt-8 p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-                <Zap className="h-6 w-6 text-white" />
+          <div className="mt-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+                <Zap className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">Notre mission</h3>
-                <p className="text-white/90 text-sm leading-relaxed text-pretty">
+                <h3 className="font-semibold text-base mb-1">Notre mission</h3>
+                <p className="text-white/90 text-xs leading-relaxed text-pretty">
                   Améliorer la santé des femmes au Sénégal grâce à un dépistage précoce et des analyses prédictives
-                  basées sur l'intelligence artificielle. Ensemble, sauvons des vies.
+                  basées sur l'intelligence artificielle.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-300/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-300/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

@@ -13,12 +13,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle2 } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { usePatients } from "@/lib/patients-context"
+import { useStructures } from "@/lib/structures-context"
+import { useCampaigns } from "@/lib/campaigns-context"
 import { useRouter } from "next/navigation"
 
 export function MedecinForm() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const { addPatient } = usePatients()
+  const { structures } = useStructures()
+  const { campaigns } = useCampaigns()
   const router = useRouter()
 
   const [formData, setFormData] = useState({
@@ -31,6 +35,8 @@ export function MedecinForm() {
     region: "",
     departement: "",
     commune: "",
+    structureId: "",
+    campagneId: "",
     statutHPV: "",
     typeHPV: "",
     resultatDepistage: "",
@@ -52,12 +58,17 @@ export function MedecinForm() {
     "Aucun symptôme",
   ]
 
+  const structuresByRegion = formData.region
+    ? structures.filter((s) => s.region === formData.region && s.statut === "actif")
+    : []
+
+  const campaignsByRegion = formData.region ? campaigns.filter((c) => c.region === formData.region) : []
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setSuccess(false)
 
-    // POST /api/depistage/create
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     console.log("[v0] HPV screening data submitted:", formData)
@@ -170,7 +181,9 @@ export function MedecinForm() {
                 <Label htmlFor="region">Région *</Label>
                 <Select
                   value={formData.region}
-                  onValueChange={(value) => setFormData({ ...formData, region: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, region: value, structureId: "", campagneId: "" })
+                  }
                   required
                 >
                   <SelectTrigger id="region">
@@ -213,6 +226,54 @@ export function MedecinForm() {
                   value={formData.commune}
                   onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="structureId">Structure de santé *</Label>
+                <Select
+                  value={formData.structureId}
+                  onValueChange={(value) => setFormData({ ...formData, structureId: value })}
+                  required
+                  disabled={!formData.region}
+                >
+                  <SelectTrigger id="structureId">
+                    <SelectValue
+                      placeholder={formData.region ? "Sélectionner une structure" : "Sélectionner d'abord une région"}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {structuresByRegion.map((structure) => (
+                      <SelectItem key={structure.id} value={structure.id}>
+                        {structure.nom} ({structure.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="campagneId">Campagne (optionnel)</Label>
+                <Select
+                  value={formData.campagneId}
+                  onValueChange={(value) => setFormData({ ...formData, campagneId: value })}
+                  disabled={!formData.region}
+                >
+                  <SelectTrigger id="campagneId">
+                    <SelectValue
+                      placeholder={formData.region ? "Aucune campagne" : "Sélectionner d'abord une région"}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Aucune campagne</SelectItem>
+                    {campaignsByRegion.map((campaign) => (
+                      <SelectItem key={campaign.id} value={campaign.id}>
+                        {campaign.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

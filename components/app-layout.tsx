@@ -28,13 +28,16 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Bell,
   Menu,
   X,
   ChevronRight,
   Sparkles,
+  Calendar,
+  Building2,
+  MessageCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { NotificationsPanel } from "@/components/notifications-panel"
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -71,7 +74,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           href: "/home",
           badge: null,
         },
-        ...(user.role === "medecin" || user.role === "chercheur"
+        ...(user.role === "medecin" || user.role === "chercheur" || user.role === "admin"
           ? [
               {
                 title: "Tableau de bord",
@@ -116,6 +119,16 @@ export function AppLayout({ children }: AppLayoutProps) {
               },
             ]
           : []),
+        ...(user.role === "admin" || user.role === "medecin" || user.role === "chercheur"
+          ? [
+              {
+                title: "Structures",
+                icon: Building2,
+                href: "/structures",
+                badge: { text: "Géo", variant: "secondary" as const },
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -141,7 +154,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     {
       title: "Analyse & Recherche",
       items: [
-        ...(user.role === "medecin" || user.role === "chercheur"
+        ...(user.role === "medecin" || user.role === "chercheur" || user.role === "admin"
           ? [
               {
                 title: "Données & Rapports",
@@ -149,6 +162,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 href: "/reports",
                 badge: null,
               },
+            ]
+          : []),
+        ...(user.role === "chercheur" || user.role === "admin"
+          ? [
               {
                 title: "Recherche",
                 icon: FlaskConical,
@@ -162,6 +179,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     {
       title: "Communication",
       items: [
+        ...(user.role === "admin" || user.role === "medecin" || user.role === "agent"
+          ? [
+              {
+                title: "SMS",
+                icon: MessageCircle,
+                href: "/sms",
+                badge: { text: "Nouveau", variant: "default" as const },
+              },
+            ]
+          : []),
         {
           title: "Chatbot",
           icon: MessageSquare,
@@ -170,37 +197,53 @@ export function AppLayout({ children }: AppLayoutProps) {
         },
       ],
     },
-    {
-      title: "Administration",
-      items: [
-        ...(user.role === "medecin"
-          ? [
+    ...(user.role === "admin" || user.role === "medecin"
+      ? [
+          {
+            title: "Administration",
+            items: [
+              ...(user.role === "admin"
+                ? [
+                    {
+                      title: "Campagnes",
+                      icon: Calendar,
+                      href: "/campaigns",
+                      badge: null,
+                    },
+                  ]
+                : []),
+              ...(user.role === "medecin" || user.role === "admin"
+                ? [
+                    {
+                      title: "Utilisateurs",
+                      icon: Users,
+                      href: "/users",
+                      badge: null,
+                    },
+                  ]
+                : []),
               {
-                title: "Utilisateurs",
-                icon: Users,
-                href: "/users",
+                title: "Paramètres",
+                icon: Settings,
+                href: "/settings",
                 badge: null,
               },
-            ]
-          : []),
-        {
-          title: "Paramètres",
-          icon: Settings,
-          href: "/settings",
-          badge: null,
-        },
-        ...(user.role === "admin"
-          ? [
+            ],
+          },
+        ]
+      : [
+          {
+            title: "Paramètres",
+            items: [
               {
-                title: "Gestion des admins",
-                icon: Users,
-                href: "/admin",
+                title: "Paramètres",
+                icon: Settings,
+                href: "/settings",
                 badge: null,
               },
-            ]
-          : []),
-      ],
-    },
+            ],
+          },
+        ]),
   ].filter((module) => module.items.length > 0)
 
   return (
@@ -297,10 +340,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <div className="flex-1" />
 
-          <Button variant="ghost" size="icon" className="relative rounded-xl hover:bg-accent">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-secondary animate-pulse" />
-          </Button>
+          <NotificationsPanel />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

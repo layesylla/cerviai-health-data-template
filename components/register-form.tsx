@@ -75,12 +75,16 @@ export function RegisterForm() {
                 : undefined,
         additionalData: {
           telephone: formData.telephone,
+          ...(selectedRole === "agent" && {
+            region: formData.region,
+            structureId: formData.structureSante,
+          }),
           ...(selectedRole === "patiente" && { dateNaissance: formData.dateNaissance }),
           ...(selectedRole === "medecin" && {
             numeroOrdre: formData.numeroOrdre,
             specialite: formData.specialite,
+            structureId: formData.structureSante,
           }),
-          ...(selectedRole === "agent" && { region: formData.region }),
           ...(selectedRole === "chercheur" && { domaineRecherche: formData.domaineRecherche }),
         },
       })
