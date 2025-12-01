@@ -24,6 +24,7 @@ interface RegisterData {
 }
 
 const REGISTERED_USERS_KEY = "cerviai_registered_users"
+const STRUCTURES_KEY = "cerviai_structures"
 
 // Mock users for testing
 const MOCK_USERS: Record<string, { password: string; user: User }> = {
@@ -117,26 +118,7 @@ export function getAgentsByStructure(structureId: string): User[] {
   const allUsers = getAllUsers()
   return Object.values(allUsers)
     .map((u) => u.user)
-    .filter((u) => u.role === "agent" && u.structureId === structureId)
-}
-
-export async function login(email: string, password: string): Promise<User> {
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
-  const allUsers = getAllUsers()
-  const userRecord = allUsers[email]
-
-  if (!userRecord || userRecord.password !== password) {
-    throw new Error("Email ou mot de passe incorrect")
-  }
-
-  // Store user in localStorage (replace with JWT token from your backend)
-  if (typeof window !== "undefined") {
-    localStorage.setItem("cerviai_user", JSON.stringify(userRecord.user))
-  }
-
-  return userRecord.user
+    .filter((u) => (u.role === "agent" || u.role === "medecin") && u.structureId === structureId)
 }
 
 export async function register(data: RegisterData): Promise<User> {
@@ -154,7 +136,7 @@ export async function register(data: RegisterData): Promise<User> {
     name: data.name,
     role: data.role,
     institution: data.institution,
-    ...(data.role === "agent" &&
+    ...(["agent", "medecin"].includes(data.role) &&
       data.additionalData?.structureId && {
         structureId: data.additionalData.structureId,
       }),
@@ -178,6 +160,25 @@ export async function register(data: RegisterData): Promise<User> {
   console.log("[v0] All registered users:", getAllRegisteredUsers())
 
   return newUser
+}
+
+export async function login(email: string, password: string): Promise<User> {
+  // Simulate API call delay
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  const allUsers = getAllUsers()
+  const userRecord = allUsers[email]
+
+  if (!userRecord || userRecord.password !== password) {
+    throw new Error("Email ou mot de passe incorrect")
+  }
+
+  // Store user in localStorage (replace with JWT token from your backend)
+  if (typeof window !== "undefined") {
+    localStorage.setItem("cerviai_user", JSON.stringify(userRecord.user))
+  }
+
+  return userRecord.user
 }
 
 export function logout(): void {
@@ -232,4 +233,14 @@ export function canManageStructures(role: UserRole): boolean {
 
 export function canManageCampaigns(role: UserRole): boolean {
   return role === "admin"
+}
+
+export function getAllStructures() {
+  if (typeof window === "undefined") return []
+  try {
+    const stored = localStorage.getItem(STRUCTURES_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
 }

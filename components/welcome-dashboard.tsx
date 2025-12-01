@@ -1,28 +1,13 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { getCurrentUser } from "@/lib/auth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-  LayoutDashboard,
-  FileText,
-  UserCircle,
-  Brain,
-  Database,
-  FlaskConical,
-  Users,
-  MessageSquare,
-  ArrowRight,
-  Sparkles,
-  Activity,
-  TrendingUp,
-  Heart,
-  Shield,
-  Zap,
-} from "lucide-react"
+import { LayoutDashboard, FileText, UserCircle, Brain, Database, FlaskConical, Users, MessageSquare, ArrowRight, Sparkles, Activity, TrendingUp, Heart, Shield, Zap } from 'lucide-react'
 import { usePatients } from "@/lib/patients-context"
+import { WelcomeCarousel } from '@/components/welcome-carousel'
 
 export function WelcomeDashboard() {
   const router = useRouter()
@@ -159,54 +144,7 @@ export function WelcomeDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-blue-600 to-secondary p-6 md:p-8 text-white shadow-xl">
-        <div className="relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm shadow-lg">
-              <Heart className="h-8 w-8 text-white animate-pulse" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold mb-1 text-balance">Bienvenue sur CERVIAI</h1>
-              <p className="text-lg text-white/95 text-balance">
-                Plateforme intelligente de dépistage du cancer du col de l'utérus au Sénégal
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-              <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50" />
-              <span className="text-xs font-medium text-white">Système opérationnel</span>
-            </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-3 py-1 text-xs">
-              <Shield className="h-3 w-3 mr-1" />
-              {roleLabels[user.role]}
-            </Badge>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 px-3 py-1 text-xs">
-              <Sparkles className="h-3 w-3 mr-1" />
-              {user.name}
-            </Badge>
-          </div>
-
-          <div className="mt-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-base mb-1">Notre mission</h3>
-                <p className="text-white/90 text-xs leading-relaxed text-pretty">
-                  Améliorer la santé des femmes au Sénégal grâce à un dépistage précoce et des analyses prédictives
-                  basées sur l'intelligence artificielle.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-300/20 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
+      <WelcomeCarousel />
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="border-2 hover:shadow-lg transition-shadow">

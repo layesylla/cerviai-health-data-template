@@ -3,8 +3,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { Structure } from "@/lib/structures-context"
-import { MapPin, Building2 } from "lucide-react"
+import { MapPin, Building2 } from 'lucide-react'
 import { useState } from "react"
+import { getAgentsByStructure } from "@/lib/auth"
 
 interface StructuresMapProps {
   structures: Structure[]
@@ -163,7 +164,7 @@ export function StructuresMap({ structures }: StructuresMapProps) {
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Agents</p>
-                  <p className="text-2xl font-bold text-secondary">{selectedStructure.nombreAgents}</p>
+                  <p className="text-2xl font-bold text-secondary">{getAgentsByStructure(selectedStructure.id).length}</p>
                 </div>
               </div>
 
@@ -178,8 +179,8 @@ export function StructuresMap({ structures }: StructuresMapProps) {
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2 border-t">
-                <p className="text-sm font-medium">Contact</p>
+              <div className="space-y-1 pt-2 border-t">
+                <p className="text-xs text-muted-foreground">Contact</p>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p>{selectedStructure.adresse}</p>
                   <p>{selectedStructure.telephone}</p>

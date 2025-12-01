@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERVIAI - Plateforme de Dépistage du Cancer du Col de l'Utérus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-img {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .header h1 {
+            color: #1a1a3a;
+            font-size: 48px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 60px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #5dd4d4;
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            color: #1a1a3a;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .mockups-section {
+            margin: 80px 0;
+        }
+        
+        .mockups-title {
+            text-align: center;
+            color: #1a1a3a;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+        
+        .mockups-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .mockups-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .mockup-desktop,
+        .mockup-mobile {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .mockup-desktop {
+            aspect-ratio: 16 / 9;
+        }
+        
+        .mockup-mobile {
+            aspect-ratio: 9 / 16;
+            margin: 0 auto;
+            max-width: 320px;
+            border: 12px solid #1a1a3a;
+            border-radius: 32px;
+            position: relative;
+        }
+        
+        .mockup-mobile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 25px;
+            background: #1a1a3a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .mockup-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+        }
+        
+        .mockup-mobile .mockup-content {
+            padding: 40px 20px;
+        }
+        
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mockup-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5dd4d4, #ff6b6b);
+        }
+        
+        .mockup-title {
+            font-weight: 700;
+            color: #1a1a3a;
+            font-size: 14px;
+        }
+        
+        .mockup-subtitle {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .stat-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: #5dd4d4;
+            font-size: 18px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .roles-section {
+            margin: 80px 0;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .roles-title {
+            color: #1a1a3a;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .role-card {
+            background: linear-gradient(135deg, #5dd4d4 0%, #4ec5c5 100%);
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+        }
+        
+        .role-card.patient {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+        
+        .role-card.researcher {
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+        }
+        
+        .role-card.admin {
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f4ba8 100%);
+        }
+        
+        .role-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .role-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .role-card p {
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .tech-stack {
+            margin: 80px 0;
+            text-align: center;
+        }
+        
+        .tech-title {
+            color: #1a1a3a;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+        
+        .tech-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tech-item-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .tech-item p {
+            color: #1a1a3a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <img src="/cerviai-logo.png" alt="CERVIAI" class="logo-img">
+                <div>
+                    <h1>CERVIAI</h1>
+                </div>
+            </div>
+            <p>Autonomiser les femmes par le dépistage précoce et l'intelligence artificielle</p>
+        </div>
+        
+        <!-- Features -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Dépistage du HPV</h3>
+                <p>Collecte de données de dépistage du cancer du col de l'utérus avec analyse IA</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Analyse Intelligente</h3>
+                <p>Scoring de risque automatisé et recommandations basées sur l'IA</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3>Géolocalisation</h3>
+                <p>Localisation des structures de santé et visualisation sur carte</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Messagerie</h3>
+                <p>Communication directe entre patientes et professionnels de santé</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Gestion d'Équipe</h3>
+                <p>Suivi des agents de santé et des structures par région</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Sécurité des Données</h3>
+                <p>Anonymisation des données patients et contrôle d'accès par rôle</p>
+            </div>
+        </div>
+        
+        <!-- Mockups -->
+        <div class="mockups-section">
+            <h2 class="mockups-title">Interface de l'Application</h2>
+            <div class="mockups-grid">
+                <!-- Desktop Mockup -->
+                <div class="mockup-desktop">
+                    <div class="mockup-content">
+                        <div class="mockup-header">
+                            <div class="mockup-avatar"></div>
+                            <div>
+                                <div class="mockup-title">Tableau de Bord</div>
+                                <div class="mockup-subtitle">Bienvenue Mariama</div>
+                            </div>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Patientes Enregistrées</span>
+                            <span class="stat-value">1,234</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Alertes de Risque Élevé</span>
+                            <span class="stat-value">45</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Structures Actives</span>
+                            <span class="stat-value">12</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Campagnes En Cours</span>
+                            <span class="stat-value">3</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Mockup -->
+                <div class="mockup-mobile">
+                    <div class="mockup-content">
+                        <div class="mockup-header">
+                            <div class="mockup-avatar"></div>
+                            <div>
+                                <div class="mockup-title">Mon Profil</div>
+                                <div class="mockup-subtitle">Patiente</div>
+                            </div>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Mes Résultats</span>
+                            <span class="stat-value">3</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Nouveaux SMS</span>
+                            <span class="stat-value">2</span>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">Messages</span>
+                            <span class="stat-value">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Roles -->
+        <div class="roles-section">
+            <h2 class="roles-title">Rôles et Permissions</h2>
+            <div class="roles-grid">
+                <div class="role-card patient">
+                    <div class="role-icon">👩</div>
+                    <h3>Patiente</h3>
+                    <p>Enregistrement, suivi des résultats, messagerie avec agents</p>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">👨‍⚕️</div>
+                    <h3>Agent de Santé</h3>
+                    <p>Collecte de données, gestion des patientes, messagerie</p>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">👩‍⚕️</div>
+                    <h3>Médecin</h3>
+                    <p>Analyse IA, suivi clinique, recommandations</p>
+                </div>
+                <div class="role-card researcher">
+                    <div class="role-icon">🔬</div>
+                    <h3>Chercheur</h3>
+                    <p>Accès aux données anonymisées, analyses avancées</p>
+                </div>
+                <div class="role-card admin">
+                    <div class="role-icon">⚙️</div>
+                    <h3>Admin</h3>
+                    <p>Gestion des utilisateurs, structures, campagnes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tech Stack -->
+        <div class="tech-stack">
+            <h2 class="tech-title">Architecture Technique</h2>
+            <div class="tech-items">
+                <div class="tech-item">
+                    <div class="tech-item-icon">⚛️</div>
+                    <p>Next.js 15</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">🎨</div>
+                    <p>Tailwind CSS</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">💾</div>
+                    <p>localStorage</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">🤖</div>
+                    <p>IA Scoring</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">🗺️</div>
+                    <p>Géolocalisation</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-item-icon">📱</div>
+                    <p>Responsive Design</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { calculateRiskScore, type RiskCalculationInput } from "@/lib/risk-calculation"
 
 export interface Patient {
@@ -103,8 +103,36 @@ const initialPatients: Patient[] = [
   },
 ]
 
+const PATIENTS_KEY = "cerviai_patients"
+
+function getStoredPatients(): Patient[] {
+  if (typeof window === "undefined") return []
+  try {
+    const stored = localStorage.getItem(PATIENTS_KEY)
+    return stored ? JSON.parse(stored).map((p: any) => ({ ...p, createdAt: new Date(p.createdAt) })) : initialPatients
+  } catch {
+    return initialPatients
+  }
+}
+
+function savePatients(patients: Patient[]) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(PATIENTS_KEY, JSON.stringify(patients))
+  } catch (error) {
+    console.error("[v0] Error saving patients:", error)
+  }
+}
+
 export function PatientsProvider({ children }: { children: ReactNode }) {
-  const [patients, setPatients] = useState<Patient[]>(initialPatients)
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
+    const stored = getStoredPatients()
+    setPatients(stored)
+    setIsInitialized(true)
+  }, [])
 
   const addPatient = (patientData: Omit<Patient, "id" | "createdAt" | "risque" | "riskScore">) => {
     const riskResult = calculateRiskScore({
@@ -127,25 +155,27 @@ export function PatientsProvider({ children }: { children: ReactNode }) {
 
     console.log("[v0] Adding patient to context:", newPatient)
     console.log("[v0] Calculated risk:", riskResult)
-    setPatients((prev) => [newPatient, ...prev])
+    const updated = [newPatient, ...patients]
+    setPatients(updated)
+    savePatients(updated)
   }
 
   const updatePatientRiskScore = (patientId: string, riskData: RiskCalculationInput) => {
     const riskResult = calculateRiskScore(riskData)
 
-    setPatients((prev) =>
-      prev.map((patient) => {
-        if (patient.patientId === patientId || patient.id === patientId) {
-          console.log("[v0] Updating patient risk score:", patientId, riskResult)
-          return {
-            ...patient,
-            risque: riskResult.level,
-            riskScore: riskResult.score,
-          }
+    const updated = patients.map((patient) => {
+      if (patient.patientId === patientId || patient.id === patientId) {
+        console.log("[v0] Updating patient risk score:", patientId, riskResult)
+        return {
+          ...patient,
+          risque: riskResult.level,
+          riskScore: riskResult.score,
         }
-        return patient
-      }),
-    )
+      }
+      return patient
+    })
+    setPatients(updated)
+    savePatients(updated)
   }
 
   const getPatients = () => patients
@@ -153,6 +183,8 @@ export function PatientsProvider({ children }: { children: ReactNode }) {
   const getPatientsByStructure = (structureId: string) => patients.filter((p) => p.structureId === structureId)
 
   const getPatientsByCampaign = (campagneId: string) => patients.filter((p) => p.campagneId === campagneId)
+
+  if (!isInitialized) return null
 
   return (
     <PatientsContext.Provider

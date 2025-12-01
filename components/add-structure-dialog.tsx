@@ -51,8 +51,9 @@ export function AddStructureDialog({ open, onOpenChange }: AddStructureDialogPro
       ...formData,
       latitude: coords.lat + (Math.random() - 0.5) * 0.1,
       longitude: coords.lng + (Math.random() - 0.5) * 0.1,
-      effectif: Number.parseInt(formData.effectif) || 0,
+      effectif: Number.parseInt(formData.effectif) || 10,
       statut: "actif",
+      nombreDepistages: 0,
     })
 
     onOpenChange(false)

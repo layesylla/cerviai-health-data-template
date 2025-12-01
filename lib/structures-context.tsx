@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 export interface Structure {
   id: string
@@ -18,13 +18,12 @@ export interface Structure {
   equipements: string[]
   statut: "actif" | "inactif"
   nombreDepistages: number
-  nombreAgents: number
   createdAt: Date
 }
 
 interface StructuresContextType {
   structures: Structure[]
-  addStructure: (structure: Omit<Structure, "id" | "createdAt" | "nombreDepistages" | "nombreAgents">) => void
+  addStructure: (structure: Omit<Structure, "id" | "createdAt">) => void
   getStructures: () => Structure[]
   getStructuresByRegion: (region: string) => Structure[]
   updateStructureStats: (structureId: string, depistages: number) => void
@@ -68,7 +67,6 @@ const initialStructures: Structure[] = [
     equipements: ["Laboratoire HPV", "Colposcopie", "Échographie", "Radiologie"],
     statut: "actif",
     nombreDepistages: 145,
-    nombreAgents: 12,
     createdAt: new Date("2024-01-01"),
   },
   {
@@ -87,7 +85,6 @@ const initialStructures: Structure[] = [
     equipements: ["Test HPV", "Consultation gynéco"],
     statut: "actif",
     nombreDepistages: 89,
-    nombreAgents: 6,
     createdAt: new Date("2024-01-01"),
   },
   {
@@ -106,7 +103,6 @@ const initialStructures: Structure[] = [
     equipements: ["Laboratoire HPV", "Colposcopie", "Échographie"],
     statut: "actif",
     nombreDepistages: 67,
-    nombreAgents: 8,
     createdAt: new Date("2024-01-01"),
   },
   {
@@ -125,25 +121,52 @@ const initialStructures: Structure[] = [
     equipements: ["Test HPV", "Consultation gynéco"],
     statut: "actif",
     nombreDepistages: 42,
-    nombreAgents: 4,
     createdAt: new Date("2024-01-01"),
   },
 ]
 
-export function StructuresProvider({ children }: { children: ReactNode }) {
-  const [structures, setStructures] = useState<Structure[]>(initialStructures)
+const STRUCTURES_KEY = "cerviai_structures"
 
-  const addStructure = (structureData: Omit<Structure, "id" | "createdAt" | "nombreDepistages" | "nombreAgents">) => {
+function getStoredStructures(): Structure[] {
+  if (typeof window === "undefined") return []
+  try {
+    const stored = localStorage.getItem(STRUCTURES_KEY)
+    return stored ? JSON.parse(stored) : initialStructures
+  } catch {
+    return initialStructures
+  }
+}
+
+function saveStructures(structures: Structure[]) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(STRUCTURES_KEY, JSON.stringify(structures))
+  } catch (error) {
+    console.error("[v0] Error saving structures:", error)
+  }
+}
+
+export function StructuresProvider({ children }: { children: ReactNode }) {
+  const [structures, setStructures] = useState<Structure[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
+    const stored = getStoredStructures()
+    setStructures(stored)
+    setIsInitialized(true)
+  }, [])
+
+  const addStructure = (structureData: Omit<Structure, "id" | "createdAt">) => {
     const newStructure: Structure = {
       ...structureData,
       id: Date.now().toString(),
-      nombreDepistages: 0,
-      nombreAgents: 0,
       createdAt: new Date(),
     }
 
     console.log("[v0] Adding structure to context:", newStructure)
-    setStructures((prev) => [newStructure, ...prev])
+    const updated = [newStructure, ...structures]
+    setStructures(updated)
+    saveStructures(updated)
   }
 
   const getStructures = () => structures
@@ -151,10 +174,14 @@ export function StructuresProvider({ children }: { children: ReactNode }) {
   const getStructuresByRegion = (region: string) => structures.filter((s) => s.region === region)
 
   const updateStructureStats = (structureId: string, depistages: number) => {
-    setStructures((prev) =>
-      prev.map((s) => (s.id === structureId ? { ...s, nombreDepistages: s.nombreDepistages + depistages } : s)),
+    const updated = structures.map((s) =>
+      s.id === structureId ? { ...s, nombreDepistages: s.nombreDepistages + depistages } : s
     )
+    setStructures(updated)
+    saveStructures(updated)
   }
+
+  if (!isInitialized) return null
 
   return (
     <StructuresContext.Provider

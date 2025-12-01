@@ -2,22 +2,30 @@ export interface SMSMessage {
   id: string
   recipientPhone: string
   recipientName: string
+  recipientId?: string
   message: string
   type: "reminder" | "alert" | "result" | "appointment"
   status: "pending" | "sent" | "failed"
   sentAt?: Date
   createdAt: Date
   patientId?: string
+  read?: boolean
 }
 
 const SMS_STORAGE_KEY = "cerviai_sms_messages"
+const SMS_INBOX_KEY = "cerviai_sms_inbox"
 
 export function getSMSMessages(): SMSMessage[] {
   if (typeof window === "undefined") return []
-
   try {
     const stored = localStorage.getItem(SMS_STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
+    return stored
+      ? JSON.parse(stored).map((msg: any) => ({
+          ...msg,
+          createdAt: new Date(msg.createdAt),
+          sentAt: msg.sentAt ? new Date(msg.sentAt) : undefined,
+        }))
+      : []
   } catch {
     return []
   }
@@ -25,11 +33,31 @@ export function getSMSMessages(): SMSMessage[] {
 
 function saveSMSMessages(messages: SMSMessage[]) {
   if (typeof window === "undefined") return
-
   try {
     localStorage.setItem(SMS_STORAGE_KEY, JSON.stringify(messages))
   } catch (error) {
     console.error("[v0] Error saving SMS messages:", error)
+  }
+}
+
+export function getSMSInbox(recipientId: string): SMSMessage[] {
+  if (typeof window === "undefined") return []
+  try {
+    const messages = getSMSMessages()
+    return messages.filter((msg) => msg.recipientId === recipientId && msg.status === "sent")
+  } catch {
+    return []
+  }
+}
+
+export function markSMSAsRead(messageId: string) {
+  if (typeof window === "undefined") return
+  try {
+    const messages = getSMSMessages()
+    const updatedMessages = messages.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg))
+    saveSMSMessages(updatedMessages)
+  } catch (error) {
+    console.error("[v0] Error marking SMS as read:", error)
   }
 }
 
@@ -38,20 +66,21 @@ export function sendSMS(
   recipientName: string,
   message: string,
   type: SMSMessage["type"],
-  patientId?: string,
+  recipientId?: string,
 ): SMSMessage {
   const newMessage: SMSMessage = {
     id: `sms-${Date.now()}`,
     recipientPhone,
     recipientName,
+    recipientId,
     message,
     type,
     status: "pending",
     createdAt: new Date(),
-    patientId,
+    read: false,
   }
 
-  // Simulate SMS sending (replace with actual SMS API)
+  // Simulate SMS sending
   setTimeout(() => {
     const messages = getSMSMessages()
     const updatedMessage = {
@@ -61,7 +90,7 @@ export function sendSMS(
     }
     const updatedMessages = messages.map((m) => (m.id === newMessage.id ? updatedMessage : m))
     saveSMSMessages(updatedMessages)
-    console.log("[v0] SMS sent:", updatedMessage)
+    console.log("[v0] SMS sent and saved to inbox:", updatedMessage)
   }, 1000)
 
   const messages = getSMSMessages()

@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { register, type UserRole } from "@/lib/auth"
-import { Activity, AlertCircle, ArrowLeft } from "lucide-react"
+import { getAllStructures } from "@/lib/auth"
+import { Activity, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from "next/link"
 
 export function RegisterForm() {
@@ -20,23 +20,15 @@ export function RegisterForm() {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [structures, setStructures] = useState<Array<{ id: string; nom: string }>>([])
 
-  // Form fields
-  const [formData, setFormData] = useState({
-    nom: "",
-    prenom: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    telephone: "",
-    dateNaissance: "",
-    numeroOrdre: "",
-    specialite: "",
-    structureSante: "",
-    region: "",
-    institution: "",
-    domaineRecherche: "",
-  })
+  useEffect(() => {
+    const loadStructures = () => {
+      const allStructures = getAllStructures()
+      setStructures(allStructures)
+    }
+    loadStructures()
+  }, [])
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role)
@@ -67,9 +59,9 @@ export function RegisterForm() {
         role: selectedRole!,
         institution:
           selectedRole === "medecin"
-            ? formData.structureSante
+            ? undefined
             : selectedRole === "agent"
-              ? formData.structureSante
+              ? undefined
               : selectedRole === "chercheur"
                 ? formData.institution
                 : undefined,
@@ -227,7 +219,6 @@ export function RegisterForm() {
             />
           </div>
 
-          {/* Champs spécifiques au rôle Médecin */}
           {selectedRole === "medecin" && (
             <>
               <div className="space-y-2">
@@ -262,31 +253,46 @@ export function RegisterForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="structureSante">Structure de santé *</Label>
-                <Input
-                  id="structureSante"
-                  placeholder="Ex: Hôpital Principal de Dakar"
+                <Select
                   value={formData.structureSante}
-                  onChange={(e) => setFormData({ ...formData, structureSante: e.target.value })}
-                  required
+                  onValueChange={(value) => setFormData({ ...formData, structureSante: value })}
                   disabled={loading}
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez votre structure" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {structures.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </>
           )}
 
-          {/* Champs spécifiques au rôle Agent de santé */}
           {selectedRole === "agent" && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="structureSante">Structure de santé *</Label>
-                <Input
-                  id="structureSante"
-                  placeholder="Ex: Centre de Santé de Pikine"
+                <Select
                   value={formData.structureSante}
-                  onChange={(e) => setFormData({ ...formData, structureSante: e.target.value })}
-                  required
+                  onValueChange={(value) => setFormData({ ...formData, structureSante: value })}
                   disabled={loading}
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez votre structure" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {structures.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
@@ -300,27 +306,26 @@ export function RegisterForm() {
                     <SelectValue placeholder="Sélectionnez votre région" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dakar">Dakar</SelectItem>
-                    <SelectItem value="thies">Thiès</SelectItem>
-                    <SelectItem value="saint-louis">Saint-Louis</SelectItem>
-                    <SelectItem value="diourbel">Diourbel</SelectItem>
-                    <SelectItem value="kaolack">Kaolack</SelectItem>
-                    <SelectItem value="ziguinchor">Ziguinchor</SelectItem>
-                    <SelectItem value="louga">Louga</SelectItem>
-                    <SelectItem value="fatick">Fatick</SelectItem>
-                    <SelectItem value="kolda">Kolda</SelectItem>
-                    <SelectItem value="matam">Matam</SelectItem>
-                    <SelectItem value="tambacounda">Tambacounda</SelectItem>
-                    <SelectItem value="kedougou">Kédougou</SelectItem>
-                    <SelectItem value="sedhiou">Sédhiou</SelectItem>
-                    <SelectItem value="kaffrine">Kaffrine</SelectItem>
+                    <SelectItem value="Dakar">Dakar</SelectItem>
+                    <SelectItem value="Thiès">Thiès</SelectItem>
+                    <SelectItem value="Saint-Louis">Saint-Louis</SelectItem>
+                    <SelectItem value="Diourbel">Diourbel</SelectItem>
+                    <SelectItem value="Kaolack">Kaolack</SelectItem>
+                    <SelectItem value="Ziguinchor">Ziguinchor</SelectItem>
+                    <SelectItem value="Louga">Louga</SelectItem>
+                    <SelectItem value="Fatick">Fatick</SelectItem>
+                    <SelectItem value="Kolda">Kolda</SelectItem>
+                    <SelectItem value="Matam">Matam</SelectItem>
+                    <SelectItem value="Tambacounda">Tambacounda</SelectItem>
+                    <SelectItem value="Kédougou">Kédougou</SelectItem>
+                    <SelectItem value="Sédhiou">Sédhiou</SelectItem>
+                    <SelectItem value="Kaffrine">Kaffrine</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </>
           )}
 
-          {/* Champs spécifiques au rôle Chercheur */}
           {selectedRole === "chercheur" && (
             <>
               <div className="space-y-2">
@@ -349,7 +354,6 @@ export function RegisterForm() {
             </>
           )}
 
-          {/* Champs spécifiques au rôle Patiente */}
           {selectedRole === "patiente" && (
             <div className="space-y-2">
               <Label htmlFor="dateNaissance">Date de naissance *</Label>

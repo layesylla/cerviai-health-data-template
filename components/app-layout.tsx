@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname } from 'next/navigation'
 import { getCurrentUser, logout } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -16,26 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Activity,
-  LayoutDashboard,
-  FileText,
-  UserCircle,
-  Brain,
-  Database,
-  FlaskConical,
-  Users,
-  MessageSquare,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  ChevronRight,
-  Sparkles,
-  Calendar,
-  Building2,
-  MessageCircle,
-} from "lucide-react"
+import { Activity, LayoutDashboard, FileText, UserCircle, Brain, Database, FlaskConical, Users, MessageSquare, MessageCircle, Settings, LogOut, Menu, X, ChevronRight, Sparkles, Calendar, Building2 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { NotificationsPanel } from "@/components/notifications-panel"
 
@@ -179,7 +160,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     {
       title: "Communication",
       items: [
-        ...(user.role === "admin" || user.role === "medecin" || user.role === "agent"
+        ...(user.role !== "patiente"
           ? [
               {
                 title: "SMS",
@@ -187,8 +168,21 @@ export function AppLayout({ children }: AppLayoutProps) {
                 href: "/sms",
                 badge: { text: "Nouveau", variant: "default" as const },
               },
+              {
+                title: "Messagerie",
+                icon: MessageSquare,
+                href: "/messaging",
+                badge: null,
+              },
             ]
-          : []),
+          : [
+              {
+                title: "Contacter un agent",
+                icon: MessageSquare,
+                href: "/messaging",
+                badge: null,
+              },
+            ]),
         {
           title: "Chatbot",
           icon: MessageSquare,
